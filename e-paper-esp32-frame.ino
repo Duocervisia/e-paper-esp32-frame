@@ -175,7 +175,7 @@ void hibernate() {
     unsigned long totalRuntime = millis() - delta;
 
     //Deepsleep for one minut minus totalRuntime
-    esp_deep_sleep(24 * 60 * 60e6 - totalRuntime * 1000);
+    esp_deep_sleep((24 * 60 + 10) * 60e6 - totalRuntime * 1000);
     // esp_deep_sleep(60e6 - totalRuntime * 1000);
 
     Serial.println("end sleep");
