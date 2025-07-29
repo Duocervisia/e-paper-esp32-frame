@@ -112,8 +112,8 @@ void setup() {
 
   // Turn on the transistor to power the external components
   pinMode(TRANSISTOR_PIN, OUTPUT);
-  digitalWrite(TRANSISTOR_PIN, HIGH); 
-  delay(100);
+  digitalWrite(TRANSISTOR_PIN, LOW); 
+  delay(10);
 
   // Initialize the SD card
   while(!SD.begin(SD_CS_PIN, vspi)){
@@ -141,7 +141,7 @@ void setup() {
 
   drawBmp(file.c_str()); // Display the file
 
-  digitalWrite(TRANSISTOR_PIN, LOW); // Turn off external components
+  digitalWrite(TRANSISTOR_PIN, HIGH); // Turn off external components
 
   preferences.end();
 }
@@ -152,6 +152,10 @@ void loop() {
 
 void hibernate() {
     Serial.println("start sleep");
+
+    // Ensure TRANSISTOR_PIN stays HIGH during deep sleep
+    gpio_hold_en((gpio_num_t)TRANSISTOR_PIN);
+    gpio_deep_sleep_hold_en();
 
     esp_deep_sleep(static_cast<uint64_t>(getSecondsTillNextImage(delta, deltaSinceTimeObtain))* 1e6);
 }
