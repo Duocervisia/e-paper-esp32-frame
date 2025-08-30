@@ -96,6 +96,7 @@ float readBattery() {
 }
 
 void setup() {
+  setCpuFrequencyMhz(80); // or 40, 20, etc. (default is 240)
   Serial.begin(115200);
   delta = millis();
   
@@ -110,6 +111,8 @@ void setup() {
     Serial.println("Did not wake up from deep sleep.");
   }
 
+  // Release hold on TRANSISTOR_PIN after deep sleep so we can control it again
+  gpio_hold_dis((gpio_num_t)TRANSISTOR_PIN);
   // Turn on the transistor to power the external components
   pinMode(TRANSISTOR_PIN, OUTPUT);
   digitalWrite(TRANSISTOR_PIN, LOW); 
@@ -158,6 +161,8 @@ void hibernate() {
     gpio_deep_sleep_hold_en();
 
     esp_deep_sleep(static_cast<uint64_t>(getSecondsTillNextImage(delta, deltaSinceTimeObtain))* 1e6);
+    // sleep for 5 seconds debug
+    // esp_deep_sleep(5* 1e6);
 }
 
 // Function to check if the SD files have changed and update the preferences if needed
