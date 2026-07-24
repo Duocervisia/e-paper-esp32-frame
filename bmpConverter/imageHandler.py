@@ -9,6 +9,35 @@ import re
 import json
 import os
 
+DISPLAY_PALETTE = (
+    (0, 0, 0),
+    (255, 255, 255),
+    (255, 255, 0),
+    (255, 0, 0),
+    (0, 0, 255),
+    (0, 255, 0),
+)
+
+
+def dither_for_epaper(image):
+    palette_image = Image.new("P", (1, 1))
+    palette_data = []
+    for color in DISPLAY_PALETTE:
+        palette_data.extend(color)
+    palette_data.extend([0] * (768 - len(palette_data)))
+    palette_image.putpalette(palette_data)
+
+    try:
+        floyd_steinberg = Image.Dither.FLOYDSTEINBERG
+    except AttributeError:
+        floyd_steinberg = Image.FLOYDSTEINBERG
+
+    return image.quantize(
+        palette=palette_image,
+        dither=floyd_steinberg,
+    ).convert("RGB")
+
+
 class ImageHandler:
     main = None
     imageSelected = None
@@ -166,6 +195,7 @@ class ImageHandler:
                     img = img.convert('RGB')
                 background = Image.new('RGB', (800, 480), (255, 255, 255))
                 background.paste(img, (int(-newFileData[i]["x_offset"]), int(-newFileData[i]["y_offset"])))
+                background = dither_for_epaper(background)
                 # print(newFileData[i]["filename"])
                 # ascii_filename = newFileData[i]["filename"].split('/')[-1].split('.')[0]
                 filename_with_extension = newFileData[i]["filename"].split('/')[-1]
